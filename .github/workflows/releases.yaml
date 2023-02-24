@@ -37,9 +37,10 @@ jobs:
         env:
           github-token: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          lerna version ${{ github.event.release.tag_name }} --yes --skip-git
+          VERSION=$(echo ${{ github.event.release.tag_name }} | sed 's/\.//')
+          lerna version $VERSION --yes --skip-git
           git add --all
           git config --list
-          git commit -m "🤖 Release ${{ github.event.release.tag_name }}"
+          git commit -m "🤖 Release ${{ github.event.release.tag_name | sed 's/v\.//' }}"
           lerna publish from-package --yes --dist-tag ${{ github.event.action == 'released' && 'latest' || 'prerelease'}}
           git push --force
