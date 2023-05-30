@@ -138,7 +138,7 @@ function roundRoyalties(royalties: Record<string, number>): Record<string, numbe
   return result;
 }
 
-function mintingDeposit({
+export const mintingDeposit = ({
   nTokens,
   nRoyalties,
   nSplits,
@@ -148,9 +148,9 @@ function mintingDeposit({
   nTokens: number;
   nRoyalties: number;
   metadata: TokenMetadata;
-}): string {
+}): string => {
   const nSplitsAdj = nSplits < 1 ?  0 : nSplits - 1;
-  const bytesPerToken = STORAGE_BYTES.TOKEN_BASE + nSplitsAdj * STORAGE_BYTES.COMMON + STORAGE_BYTES.COMMON;
+  const bytesPerToken = STORAGE_BYTES.TOKEN_BASE + nSplitsAdj * STORAGE_BYTES.COMMON * 2 + STORAGE_BYTES.COMMON;
   const metadataBytesEstimate = JSON.stringify(metadata).length;
 
   const totalBytes = STORAGE_BYTES.MINTING_BASE +
@@ -159,9 +159,8 @@ function mintingDeposit({
     bytesPerToken * nTokens +
     STORAGE_BYTES.COMMON * nRoyalties;
 
-  // The above totalBytes calculation seems to diverge from settings on the
-  // smart contract despite having been triple-checked to be the same
-  // calculation, except for the deliberate over-estimation of serialized
-  // metadata size. Multiply by 1.2 to make it work.
-  return `${Math.ceil(totalBytes * 1.2)}${'0'.repeat(STORAGE_PRICE_PER_BYTE_EXPONENT)}`;
-}
+  return `${Math.ceil(totalBytes)}${'0'.repeat(STORAGE_PRICE_PER_BYTE_EXPONENT)}`;
+};
+
+//  314660000000000000000000
+// 1241060000000000000000000
