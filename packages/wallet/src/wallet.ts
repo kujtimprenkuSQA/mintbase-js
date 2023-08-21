@@ -4,6 +4,13 @@ import { networks } from './networks';
 import { Action, Transaction } from '@near-wallet-selector/core';
 import BN from 'bn.js';
 
+declare global {
+  interface Window {
+    mbWallet: InjectedMbWallet | undefined;
+  }
+}
+
+
 export class MintbaseWallet {
   networkId: string;
   signInContractId: string;
@@ -52,6 +59,15 @@ export class MintbaseWallet {
   }
 
   async signIn() {
+
+
+      const existingAccounts = await this.getAccounts();
+       
+      if (existingAccounts.length) {
+        return existingAccounts;
+      }
+
+
     const currentUrl = new URL(window.location.href);
     const newUrl = new URL(`${this.walletUrl}/connect`);
     newUrl.searchParams.set('success_url', currentUrl.href);
@@ -236,6 +252,16 @@ export class MintbaseWallet {
     const currentUrl = new URL(window.location.href);
     currentUrl.searchParams.delete('account_id');
     currentUrl.searchParams.delete('public_key');
+
+    const accountId = window.localStorage.getItem('mintbasewallet:activeAccountId');
+
+
+ // adds extra reload on login to force it
+    if(accountId.length < 0) {
+      window.location.reload();
+
+    }
+
     window.history.replaceState({}, document.title, currentUrl.toString());
   }
 }
